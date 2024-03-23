@@ -21,7 +21,7 @@ OSはrasberry pi os 64 bit.
 設定ファイル(/etc/NetworkManager/system-connections/preconfigured.nmconnection)に以下を追記。
 192.168.x.xxxはラズパイのアドレス、192.168.y.yyyはgatewayのアドレス。
 
-```
+```text
 [ipv4]
 method=manual
 address1=192.168.x.xxx/24,192.168.y.yyy
@@ -37,7 +37,7 @@ sudo nmcli connection reload
 
 設定ファイルに以下を追記。
 
-```
+```text
 cgroup_memory=1 cgroup_enable=memory
 ```
 
@@ -71,5 +71,3 @@ httpsはhttpに直さず、そのままで。
 $ kubectl get po
 No resources found in default namespace.
 ```
-
-
