@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grist-app
+  namespace: grist
+spec:
+  selector:
+    matchLabels:
+      app: grist-app
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: grist-app
+    spec:
+      containers:
+        - name: grist-app
+          image: gristlabs/grist
+          envFrom:
+            - secretRef:
+                name: grist-secret
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8484
+          volumeMounts:
+            - mountPath: /persist
+              name: pvc-grist
+          resources: {}
+      volumes:
+        - name: pvc-grist
+          persistentVolumeClaim:
+            claimName: pvc-grist
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grist-app
+  namespace: grist
+  labels:
+    app: grist-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 8484
+  selector:
+    app: grist-app
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grist-app
+  namespace: grist
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - "gristapp"
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grist-app
+            port:
+              number: 80

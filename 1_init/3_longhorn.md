@@ -23,6 +23,20 @@ sudo apt install open-iscsi
 kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/deploy/longhorn.yaml
 ```
 
+replica数変えとく
+
+```bash
+kubectl edit configmap longhorn-storageclass -n longhorn-system
+```
+
+```yaml
+apiVersion: v1
+data:
+  storageclass.yaml: 
+   parameters:
+      numberOfReplicas: "1"
+```
+
 ## TODO
 
 s3へのバックアップ環境用意。
