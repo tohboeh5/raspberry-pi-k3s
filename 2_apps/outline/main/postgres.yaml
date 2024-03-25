@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: grist
+  namespace: outline
 spec:
   selector:
     matchLabels:
@@ -22,31 +22,28 @@ spec:
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
-                name: grist-secret
-                key: TYPEORM_USERNAME
+                name: outline-secret
+                key: USER
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: grist-secret
-                key: TYPEORM_PASSWORD
+                name: outline-secret
+                key: PASSWD
           - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                name: grist-secret
-                key: TYPEORM_DATABASE
+            value: outline
           - name: PGDATA
-            value: /var/lib/postgresql/data/pgdata
+            value: /var/lib/postgresql/data
           imagePullPolicy: Always
           ports:
             - containerPort: 5432
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
-              name: pvc-grist-postgres
+              name: pvc-postgres
           resources: {}
       volumes:
-        - name: pvc-grist-postgres
+        - name: pvc-postgres
           persistentVolumeClaim:
-            claimName: pvc-grist-postgres
+            claimName: pvc-postgres
 
 ---
 
@@ -54,7 +51,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: grist
+  namespace: outline
   labels:
     app: postgres
 spec:

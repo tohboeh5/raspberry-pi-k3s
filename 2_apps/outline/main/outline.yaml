@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: outline-app
+  namespace: outline
+spec:
+  selector:
+    matchLabels:
+      app: outline-app
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: outline-app
+    spec:
+      containers:
+        - name: outline-app
+          image: outlinewiki/outline:latest
+          envFrom:
+            - secretRef:
+                name: outline-secret
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - mountPath: /var/lib/outline/data
+              name: pvc-outline
+          resources: {}
+      volumes:
+        - name: pvc-outline
+          persistentVolumeClaim:
+            claimName: pvc-outline
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: outline-app
+  namespace: outline
+  labels:
+    app: outline-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+  selector:
+    app: outline-app
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: outline-app
+  namespace: outline
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - "outline"
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: outline-app
+            port:
+              number: 80
