@@ -43,6 +43,19 @@ ingress立てておく。
 kubectl apply -f longhorn_ingress.yam
 ```
 
+## 既存フォルダからデータをコピーする場合
+
+1. pvcをまず作成する
+1. longhornのUIから、volumeタブに移行。当該のPVCを選択。
+1. 右上メニューからattachを選択。ノードを指定しattach.
+1. attachしたノードでマウント処理。
+
+```bash
+sudo mount  /dev/longhorn/pvc-xxxxxxxxxxxxxxxx /tmp/pvc
+```
+
+1. /tmp/pvcの配下にコピーできる。
+
 ## TODO
 
 s3へのバックアップ環境用意。
