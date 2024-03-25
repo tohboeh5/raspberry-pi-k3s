@@ -51,6 +51,7 @@ kubectl apply -f longhorn_ingress.yam
 1. attachしたノードでマウント処理。
 
 ```bash
+sudo systemctl daemon-reload
 sudo mount  /dev/longhorn/pvc-xxxxxxxxxxxxxxxx /tmp/pvc
 ```
 
