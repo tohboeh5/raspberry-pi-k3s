@@ -37,6 +37,12 @@ data:
       numberOfReplicas: "1"
 ```
 
+ingress立てておく。
+
+```sh
+kubectl apply -f longhorn_ingress.yam
+```
+
 ## TODO
 
 s3へのバックアップ環境用意。
