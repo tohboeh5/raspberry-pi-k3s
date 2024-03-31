@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-machine-learning
+  namespace: immich
+spec:
+  selector:
+    matchLabels:
+      app: immich-machine-learning
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: immich-machine-learning
+    spec:
+      containers:
+        - name: immich-machine-learning
+          image: ghcr.io/immich-app/immich-machine-learning:release
+          envFrom:
+            - secretRef:
+                name: immich-secret
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3003
+          volumeMounts:
+            - mountPath: /cache
+              name: pvc-immich-model
+          resources:
+            limits:
+              memory: "1024Mi"
+              cpu: "200m"
+      volumes:
+        - name: pvc-immich-model
+          persistentVolumeClaim:
+            claimName: pvc-immich-model
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-machine-learning
+  namespace: immich
+  labels:
+    app: immich-machine-learning
+spec:
+  ports:
+    - port: 3003
+  selector:
+    app: immich-machine-learning

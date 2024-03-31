@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-microservices
+  namespace: immich
+spec:
+  selector:
+    matchLabels:
+      app: immich-microservices
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: immich-microservices
+    spec:
+      containers:
+        - name: immich-microservices
+          image: ghcr.io/immich-app/immich-server:release
+          command: ['bash','start.sh', 'microservices']
+          envFrom:
+            - secretRef:
+                name: immich-secret
+          env:
+          - name: TZ
+            value: Asia/Tokyo
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9230
+          volumeMounts:
+            - mountPath: /usr/src/app/upload
+              name: pvc-immich-upload
+          resources:
+            limits:
+              memory: "1028Mi"
+              cpu: "200m"
+      volumes:
+        - name: pvc-immich-upload
+          persistentVolumeClaim:
+            claimName: pvc-immich-upload
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-microservices
+  namespace: immich
+  labels:
+    app: immich-microservices
+spec:
+  ports:
+    - port: 9230
+  selector:
+    app: immich-microservices
