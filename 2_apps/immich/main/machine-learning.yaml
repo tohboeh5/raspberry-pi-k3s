@@ -30,7 +30,7 @@ spec:
           resources:
             limits:
               memory: "1024Mi"
-              cpu: "200m"
+              cpu: "500m"
       volumes:
         - name: pvc-immich-model
           persistentVolumeClaim:

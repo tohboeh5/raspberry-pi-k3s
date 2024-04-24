@@ -42,7 +42,10 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: pvc-keycloak-postgres
-          resources: {}
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
       volumes:
         - name: pvc-keycloak-postgres
           persistentVolumeClaim:

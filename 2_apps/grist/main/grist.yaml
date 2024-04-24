@@ -27,7 +27,10 @@ spec:
           volumeMounts:
             - mountPath: /persist
               name: pvc-grist
-          resources: {}
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
       volumes:
         - name: pvc-grist
           persistentVolumeClaim:
