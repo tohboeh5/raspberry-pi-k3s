@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkwarden-app
+  namespace: linkwarden
+spec:
+  selector:
+    matchLabels:
+      app: linkwarden-app
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: linkwarden-app
+    spec:
+      containers:
+        - name: linkwarden-app
+          image: ghcr.io/linkwarden/linkwarden:latest
+          envFrom:
+            - secretRef:
+                name: linkwarden-secret
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - mountPath: /data/data
+              name: pvc-linkwarden
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+      volumes:
+        - name: pvc-linkwarden
+          persistentVolumeClaim:
+            claimName: pvc-linkwarden
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: linkwarden-app
+  namespace: linkwarden
+  labels:
+    app: linkwarden-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+  selector:
+    app: linkwarden-app
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: linkwarden-app
+  namespace: linkwarden
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - "linkwarden"
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: linkwarden-app
+            port:
+              number: 80
