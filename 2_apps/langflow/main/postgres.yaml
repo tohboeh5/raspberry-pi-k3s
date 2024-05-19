@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langflow-postgres
+  namespace: langflow
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: langflow-secret
+                key: DB_USERNAME
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: langflow-secret
+                key: DB_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: langflow-secret
+                key: DB_DATABASE_NAME
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pvc-langflow-postgres
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+      volumes:
+        - name: pvc-langflow-postgres
+          persistentVolumeClaim:
+            claimName: pvc-langflow-postgres
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: langflow-postgres
+  namespace: langflow
+  labels:
+    app: postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres

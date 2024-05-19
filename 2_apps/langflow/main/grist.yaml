@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langflow-app
+  namespace: langflow
+spec:
+  selector:
+    matchLabels:
+      app: langflow-app
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: langflow-app
+    spec:
+      containers:
+        - name: langflow-app
+          image: langflowai/langflow:1.0-alpha@sha256:d8d9530bbf1f434b9002e367bc8e6c71d7344cb4a3f85c024a48fd17a40fae00
+          envFrom:
+            - secretRef:
+                name: langflow-secret
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7860
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: langflow-app
+  namespace: langflow
+  labels:
+    app: langflow-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 7860
+  selector:
+    app: langflow-app
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: langflow-app
+  namespace: langflow
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - "gristapp"
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: langflow-app
+            port:
+              number: 80
