@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: leantime
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql
+          envFrom:
+            - secretRef:
+                name: leantime-secret
+          imagePullPolicy: Always
+          # command: ["mysqld","--character-set-server=UTF8MB4", "--collation-server=UTF8MB4_unicode_ci"]
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: pvc-leantime-mysql
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+      volumes:
+        - name: pvc-leantime-mysql
+          persistentVolumeClaim:
+            claimName: pvc-leantime-mysql
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: leantime
+  labels:
+    app: mysql
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: mysql

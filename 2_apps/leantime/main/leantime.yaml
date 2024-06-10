@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leantime-app
+  namespace: leantime
+spec:
+  selector:
+    matchLabels:
+      app: leantime-app
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: leantime-app
+    spec:
+      containers:
+        - name: leantime-app
+          image: leantime/leantime:latest
+          envFrom:
+            - secretRef:
+                name: leantime-secret
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - mountPath: /var/www/html/public/userfiles
+              name: pvc-leantime-public
+            - mountPath: /var/www/html/userfiles
+              name: pvc-leantime-private
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: pvc-leantime-public
+          persistentVolumeClaim:
+            claimName: pvc-leantime-public
+        - name: pvc-leantime-private
+          persistentVolumeClaim:
+            claimName: pvc-leantime-private
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: leantime-app
+  namespace: leantime
+  labels:
+    app: leantime-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 8081
+  selector:
+    app: leantime-app
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: leantime-app
+  namespace: leantime
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - "leantime"
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: leantime-app
+            port:
+              number: 80
