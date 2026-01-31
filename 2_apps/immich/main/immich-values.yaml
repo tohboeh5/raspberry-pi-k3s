@@ -1,0 +1,63 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          tag: v2.0.0
+        env:
+          TZ: Asia/Tokyo
+          DB_HOSTNAME: immich-postgres-rw
+          DB_PORT: "5432"
+          DB_DATABASE_NAME: immich
+          DB_USERNAME:
+            valueFrom:
+              secretKeyRef:
+                name: immich-db
+                key: username
+          DB_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: immich-db
+                key: password
+
+immich:
+  persistence:
+    library:
+      existingClaim: pvc-immich-library
+
+server:
+  ingress:
+    main:
+      enabled: true
+      className: tailscale
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      hosts:
+        - host: immich
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+      tls:
+        - hosts:
+            - immich
+
+valkey:
+  enabled: true
+  persistence:
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      size: 1Gi
+      accessMode: ReadWriteOnce
+      storageClass: longhorn
+
+machine-learning:
+  persistence:
+    cache:
+      enabled: true
+      type: persistentVolumeClaim
+      size: 10Gi
+      accessMode: ReadWriteOnce
+      storageClass: longhorn
