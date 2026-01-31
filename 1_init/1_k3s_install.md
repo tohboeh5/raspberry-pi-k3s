@@ -16,6 +16,13 @@ OSはrasberry pi os 64 bit.
 
 ## セットアップ
 
+### tailscaleのインストール
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up --ssh
+```
+
 ### ip 固定(ipv4)
 
 設定ファイル(/etc/NetworkManager/system-connections/preconfigured.nmconnection)に以下を追記。
@@ -35,13 +42,17 @@ sudo nmcli connection reload
 
 ### cgroup有効化
 
-設定ファイルに以下を追記。
+設定ファイル`/boot/firmware/cmdline.txt`に以下を追記。
 
 ```text
 cgroup_memory=1 cgroup_enable=memory
 ```
 
+一度再起動しておく。
+
 ### swap無効化
+
+不要かも
 
 ```bash
 swapoff --all
