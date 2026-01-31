@@ -16,3 +16,14 @@ helm install sealed-secrets sealed-secrets/sealed-secrets \
   --wait
 ```
 
+### kubeseal 利用時の指定
+
+この手順だと controller 名は `sealed-secrets`、namespace は `kube-system`。
+`kubeseal` 実行時に以下を指定する。
+
+```bash
+kubeseal \
+  --controller-name=sealed-secrets \
+  --controller-namespace=kube-system
+```
+
