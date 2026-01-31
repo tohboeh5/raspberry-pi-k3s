@@ -17,31 +17,25 @@ open-iscsiが必要なので入れておく。
 sudo apt install open-iscsi
 ```
 
-以下インストール。
+Tailscale の Ingress を使うので、`ingressClassName: tailscale` とホスト名を Tailnet の FQDN にしておく。
+
+
+`YOUR_TAILNET` を `tailnet-xxxx.ts.net` の形に置き換える。
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/deploy/longhorn.yaml
+helm upgrade --install longhorn longhorn/longhorn \
+	--namespace longhorn-system \
+	--create-namespace \
+	--version 1.11.0 \
+	--set persistence.defaultClassReplicaCount=1 \
+	--set ingress.enabled=true \
+	--set ingress.ingressClassName=tailscale \
+	--set ingress.host=longhorn-raspberry01.YOUR_TAILNET \
+	--set ingress.tls=true \
+	--set ingress.tlsSecret=longhorn-tls
 ```
 
-replica数変えとく
-
-```bash
-kubectl edit configmap longhorn-storageclass -n longhorn-system
-```
-
-```yaml
-apiVersion: v1
-data:
-  storageclass.yaml: 
-   parameters:
-      numberOfReplicas: "1"
-```
-
-ingress立てておく。
-
-```sh
-kubectl apply -f longhorn_ingress.yam
-```
+`ingress.tlsSecret` は Tailscale 側で自動発行されるため、存在しなくても作成される。
 
 ## 既存フォルダからデータをコピーする場合
 
