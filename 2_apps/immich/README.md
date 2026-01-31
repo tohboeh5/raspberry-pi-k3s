@@ -10,6 +10,7 @@
 ### 2) create the SealedSecret
 
 ```bash
+kubectl create namespace immich || true
 kubectl create secret generic immich-db -n immich \
 	--from-env-file=.env \
 	--dry-run=client -o yaml | \
@@ -23,10 +24,9 @@ kubectl create secret generic immich-db -n immich \
 ### 3) apply base resources
 
 ```bash
-kubectl create namespace immich || true
 kubectl apply -f init
-kubectl apply -f main/postgres.yaml
 kubectl apply -f main/immich-sealed-secrets.yaml
+kubectl apply -f main/postgres.yaml
 ```
 
 ### 4) install/upgrade Immich with Helm
@@ -41,3 +41,4 @@ helm upgrade --install --create-namespace --namespace immich immich \
 
 - Update `controllers.main.containers.main.image.tag` in [2_apps/immich/main/immich-values.yaml](2_apps/immich/main/immich-values.yaml) to pin the Immich version.
 - `immich-postgres` uses the VectorChord-enabled CNPG image. Keep `shared_preload_libraries` and `postInitSQL` aligned with Immich docs.
+- `immich-db` is used for the Immich application DB user. CNPG superuser access is disabled; extension creation relies on the `immich` role being `superuser: true` in the CNPG cluster spec.

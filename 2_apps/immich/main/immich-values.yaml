@@ -3,7 +3,7 @@ controllers:
     containers:
       main:
         image:
-          tag: v2.0.0
+          tag: v2.5.2
         env:
           TZ: Asia/Tokyo
           DB_HOSTNAME: immich-postgres-rw
@@ -19,6 +19,13 @@ controllers:
               secretKeyRef:
                 name: immich-db
                 key: password
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 800m
+            memory: 768Mi
 
 immich:
   persistence:
@@ -26,6 +33,17 @@ immich:
       existingClaim: pvc-immich-library
 
 server:
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
   ingress:
     main:
       enabled: true
@@ -45,6 +63,17 @@ server:
 
 valkey:
   enabled: true
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              cpu: 25m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
   persistence:
     data:
       enabled: true
@@ -54,6 +83,17 @@ valkey:
       storageClass: longhorn
 
 machine-learning:
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
   persistence:
     cache:
       enabled: true
@@ -61,3 +101,29 @@ machine-learning:
       size: 10Gi
       accessMode: ReadWriteOnce
       storageClass: longhorn
+
+microservices:
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
+web:
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
