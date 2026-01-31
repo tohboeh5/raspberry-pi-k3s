@@ -19,8 +19,8 @@ tailscaleのダッシュボードから、Access controlタブに入り、editfi
 
 ### デバイス追加
 
-tailscaleのダッシュボードから、settingsタブに入り、左メニューのOAuth clientを選び、「Generate OAuth client…」を押す。
-Device→Writeをチェック、tagにk8s-operatorを設定し、「generate client」を押す。
+tailscaleのダッシュボードから、settingsタブに入り、左メニューのTrust credentialsを選び、「New credential」を押す。
+`Devices Core, Auth Keys, Services write scopes, and the tag tag:k8s-operator`を設定し、「generate client」を押す。
 出てきたIDとSECRETを環境変数TAILSCALE_CLIENT_IDとTAILSCALE_CLIENT_SECRETに格納。
 
 ### デプロイ
